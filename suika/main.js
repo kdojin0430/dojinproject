@@ -40,6 +40,7 @@ const ground = Bodies.rectangle(310, 820, 620, 60, {
 
 const topLine = Bodies.rectangle(310, 150, 620, 2, {
     isStatic: true,
+    isSensor: true,
     render:{fillStyle:'#E6B143'}
 })
 World.add(world, [leftwall,rightwall,ground,topLine]);
@@ -47,19 +48,27 @@ World.add(world, [leftwall,rightwall,ground,topLine]);
 Render.run(render)
 Runner.run(engine)
 
-function addFruits()
-{
-    const index = 1;
-    const fruits = FRUITS[index];
+let currentBody = null;
+let currentFruit = null;
 
-    const body =Bodies.circle(300,50,fruits.radius,{
+function addFruit()
+{
+    const index = Math.floor(Math.random()*5);
+    const fruit = FRUITS[index];
+
+    const body = Bodies.circle(300,50,fruit.radius,{
         index: index,
+        isSleeping : true,
         render: {
-            sprite: {texture:`${fruits.name}.png`},
-        }
+            sprite: {texture:`${fruit.name}.png`},
+        },
+        restitution:0.2,
     })
+
+    currentBody = body;
+    currentFruit = fruit;
 
     World.add(world, body)
 
 }
-addFruits();
+addFruit();
