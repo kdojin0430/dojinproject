@@ -1,3 +1,5 @@
+import {FRUITS} from "/suika/fruits.js"
+
 //모듈 불러오기
 var Engine = Matter.Engine,
     Render = Matter.Render,
@@ -44,3 +46,20 @@ World.add(world, [leftwall,rightwall,ground,topLine]);
 
 Render.run(render)
 Runner.run(engine)
+
+function addFruits()
+{
+    const index = 1;
+    const fruits = FRUITS[index];
+
+    const body =Bodies.circle(300,50,fruits.radius,{
+        index: index,
+        render: {
+            sprite: {texture:`${fruits.name}.png`},
+        }
+    })
+
+    World.add(world, body)
+
+}
+addFruits();
