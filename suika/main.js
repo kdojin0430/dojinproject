@@ -5,7 +5,9 @@ var Engine = Matter.Engine,
     Render = Matter.Render,
     Runner = Matter.Runner,
     Bodies = Matter.Bodies,
-    World = Matter.World;
+    World = Matter.World,
+    //바디추가
+    Body = Matter.Body;
 
 const engine = Engine.create();
 
@@ -51,6 +53,8 @@ Runner.run(engine)
 let currentBody = null;
 let currentFruit = null;
 
+let disableAction = false;
+
 function addFruit()
 {
     const index = Math.floor(Math.random()*5);
@@ -71,4 +75,36 @@ function addFruit()
     World.add(world, body)
 
 }
+
+window.onkeydown =  ( event ) => {
+
+    if (disableAction)
+        return;
+
+    switch(event.code) {
+        case "KeyA":
+            Body.setPosition(currentBody, {
+                x: currentBody.position.x -10,
+                y: currentBody.position.y
+            });
+            break;
+        case "KeyD":
+            Body.setPosition(currentBody, {
+                x: currentBody.position.x + 10,
+                y: currentBody.position.y
+            });
+            break;
+
+        case "KeyS":
+            currentBody.isSleeping = false;
+            disableAction = true;
+            
+            setTimeout(() => {
+                addFruit();
+                disableAction = false;  
+            }, 1000);
+            break;
+    }
+}
+
 addFruit();
