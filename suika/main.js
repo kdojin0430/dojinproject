@@ -7,7 +7,9 @@ var Engine = Matter.Engine,
     Bodies = Matter.Bodies,
     World = Matter.World,
     //바디추가
-    Body = Matter.Body;
+    Body = Matter.Body,
+
+    Events = Matter.Events;
 
 const engine = Engine.create();
 
@@ -41,6 +43,7 @@ const ground = Bodies.rectangle(310, 820, 620, 60, {
 })
 
 const topLine = Bodies.rectangle(310, 150, 620, 2, {
+    name : "topLine",
     isStatic: true,
     isSensor: true,
     render:{fillStyle:'#E6B143'}
@@ -54,6 +57,8 @@ let currentBody = null;
 let currentFruit = null;
 
 let disableAction = false;
+
+let interval = null;
 
 function addFruit()
 {
@@ -83,16 +88,34 @@ window.onkeydown =  ( event ) => {
 
     switch(event.code) {
         case "KeyA":
-            Body.setPosition(currentBody, {
-                x: currentBody.position.x -10,
-                y: currentBody.position.y
-            });
+
+        if(interval)
+            return;
+
+        interval = setInterval(()=> {
+            if ( currentBody.position.x - currentFruit.radius > 30) {
+                Body.setPosition(currentBody, {
+                    x: currentBody.position.x -1,
+                    y: currentBody.position.y
+                });
+            }
+        },5)
+           
+               
             break;
         case "KeyD":
-            Body.setPosition(currentBody, {
-                x: currentBody.position.x + 10,
-                y: currentBody.position.y
-            });
+
+        if(interval)
+            return;
+
+         interval = setInterval(()=> {
+            if ( currentBody.position.x + currentFruit.radius < 590) {
+                Body.setPosition(currentBody, {
+                    x: currentBody.position.x + 1,
+                    y: currentBody.position.y
+                });
+            }
+        },5)
             break;
 
         case "KeyS":
@@ -106,5 +129,54 @@ window.onkeydown =  ( event ) => {
             break;
     }
 }
+
+window.onkeyup = (event) => {
+    switch(event.code){
+        case "KeyA":
+        case "KeyD":
+            clearInterval(interval);
+            interval = null;
+    }
+}
+
+Events.on(engine,"collisionStart", (event) => {
+    event.pairs.forEach((collision) => {
+        const index = collision.bodyA.index;
+
+        if (index === FRUITS.length - 1)
+            return;
+
+        if (collision.bodyA.index == collision.bodyB.index){
+            World.remove(world,[collision.bodyA, collision.bodyB])
+
+            const newFruit = FRUITS[index + 1];
+            const newBody =Bodies.circle(
+                collision.collision.supports[0].x,
+                collision.collision.supports[0].y,
+                newFruit.radius,
+                {
+                    index : index +1,
+                    render : {sprite: {texture: `${newFruit.name}.png`}}
+    
+                }
+            )
+            World.add(world,newBody);
+
+            if (newBody.index === FRUITS.length - 1){
+                setTimeout(() => {
+                    alert("You made watermelon\n축하합니다!")
+                    disableAction = true;
+                });
+           }
+        }
+
+       if ( !disableAction && (collision.bodyA.name === "topLine" || collision.bodyB.name  === "topLine")){
+            alert ("Game Over");
+       }
+
+      
+        
+    })
+});
 
 addFruit();
